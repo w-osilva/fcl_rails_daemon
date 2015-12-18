@@ -50,10 +50,12 @@ module FclRailsDaemon
       prefixo = DAEMON_CONFIG['command_prefix']
 
       puts "\n------------------------------------------------------------------------------------------------------------\n"
-      puts "  FOOTSTATSD\n"
+      puts "  FCL_RAILS_DAEMON\n"
       puts "------------------------------------------------------------------------------------------------------------\n"
       puts "  * Use a opção --help para ver os manual para os comandos\n"
       puts "    #{prefixo} --help\n\n"
+      puts "  * Use a opção --create para criar um novo comando\n"
+      puts "    #{prefixo} --create meu_primeiro_comando\n\n"
       puts "  * Use a opção start| stop | restart | status para controlar todos processos de uma vez\n"
       puts "    #{prefixo} start\n\n"
       puts "  * Use a opção --pids para ver os pids de processos\n"
@@ -63,7 +65,7 @@ module FclRailsDaemon
       puts "  * Use a opção --task nome_comando start | stop | restart | status para controlar processos individualmente\n"
       puts "    #{prefixo} --task comando start\n\n"
       puts "------------------------------------------------------------------------------------------------------------\n"
-      puts "  LISTA DE TASKS\n"
+      puts "  LISTA DE COMANDOS\n"
       puts "------------------------------------------------------------------------------------------------------------\n"
 
       helpers.each do |h|
