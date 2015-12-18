@@ -9,7 +9,7 @@ require 'active_support'
 module FclRailsDaemon end
 
 require_relative "core/daemon"
-comandos_dir = File.join(DAEMON_ROOT, "lib", "comandos")
+comandos_dir = File.join(DAEMON_ROOT, DAEMON_CONFIG['command_path'])
 if File.directory?(comandos_dir)
   Dir["#{comandos_dir}/*.rb"].each {|file| require file }
 end
