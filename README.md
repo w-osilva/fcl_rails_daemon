@@ -45,20 +45,19 @@ Serão criados:
 
 #### Podemos consultar o manual para descobrir quais os comandos disponíveis através do parametro --help
 
-     $ fcld --help
+    $ fcld --help
 
 
 #### Podemos consultar os pids de processos gerenciados pelo daemon através do parametro --pids
 
-     $ fcld --pids
+    $ fcld --pids
 
 
 #### Podemos executar as ações básicas de um daemon (parametros start | stop | restart | status)
 
-     $ fcld start
+    $ fcld start
 
 
 #### Podemos controlar processos individualnmente através do parametro --task
 
-     $ fcld --task meu_primeiro_comando start
-
+    $ fcld --task meu_primeiro_comando start
