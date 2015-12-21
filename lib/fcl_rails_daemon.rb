@@ -5,13 +5,12 @@ require 'yaml'
 require 'daemons'
 require 'active_support'
 
-
 module FclRailsDaemon end
 
 require_relative "core/daemon"
 comandos_dir = File.join(DAEMON_ROOT, DAEMON_CONFIG['command_path'])
 if File.directory?(comandos_dir)
-  Dir["#{comandos_dir}/*.rb"].each {|file| require file }
+  Dir[File.join(comandos_dir, "**/*.rb")].each {|file| require file }
 end
 require_relative "core/registrador.rb"
 require_relative "core/gerenciador.rb"

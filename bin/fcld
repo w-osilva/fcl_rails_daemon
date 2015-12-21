@@ -11,8 +11,8 @@ config_file = File.join(config_dir, 'fcld_rails_daemon.rb')
 if ARGV.include? "--configure"
   config_file_content = <<-FILE
 # Carrega arquivo de environment (projeto rails)
-if File.exist?(File.join("#{config_dir}", "environment"))
-  require File.join("#{config_dir}", "environment")
+if File.exist?(File.join("#{DAEMON_ROOT}", "config", "environment.rb"))
+  require File.join("#{DAEMON_ROOT}", "config", "environment.rb")
 end
 
 # Para registrar seus comandos é necessário adicioná-los conforme o exemplo abaixo
