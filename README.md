@@ -1,7 +1,6 @@
 # FclRailsDaemon
 
-Esta gem foi desenvolvida com a partir da necessidade de gerenciamento através do terminal em processos que por sua vez
-executam determinados programas escritos em ruby.
+Esta gem foi desenvolvida a partir da necessidade de gerenciamento de programas escritos em ruby como processos em background.
 
 ## Instalação
 
@@ -22,7 +21,7 @@ Ou somente instale:
 
 ## Configuração
 
-Após a instalação é necessário criar os diretórios e arquivos de configuração, para isso execute
+Após a instalação é necessário criar os diretórios e arquivos de configuração, para isso execute:
 
     $ fcld --configure
 
@@ -35,7 +34,7 @@ Serão criados:
 
 ## Como Usar?
 
-#### Podemos adicionar comandos através do parametro --create
+#### Podemos adicionar comandos através do parâmetro --create
 
     $ fcld --create meu_primeiro_comando
 
@@ -43,7 +42,7 @@ Serão criados:
  * Efetua o registro em config/fcl_rails_daemon.rb
 
 
-#### Podemos consultar o manual para descobrir quais os comandos disponíveis através do parametro --help
+#### Podemos consultar o manual para descobrir quais os comandos disponíveis através do parâmetro --help
 
     $ fcld --help
 
@@ -53,11 +52,11 @@ Serão criados:
     $ fcld --pids
 
 
-#### Podemos executar as ações básicas de um daemon (parametros start | stop | restart | status)
+#### Podemos executar as ações básicas de um daemon (parâmetros start | stop | restart | status)
 
     $ fcld start
 
 
-#### Podemos controlar processos individualnmente através do parametro --task
+#### Podemos controlar processos individualmente através do parâmetro --task
 
     $ fcld --task meu_primeiro_comando start
