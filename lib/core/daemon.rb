@@ -1,15 +1,14 @@
 module FclRailsDaemon
   class Daemon
 
-    cattr_reader :comandos_validos
+    cattr_reader :commands_valid
     @@pids_file = File.join(DAEMON_ROOT, DAEMON_CONFIG['pids_file'])
-    @@comandos_validos = ['start', 'stop', 'restart', 'status']
+    @@commands_valid = ['start', 'stop', 'restart', 'status']
 
-
-    def initialize(task: nil, log: nil)
-      raise "Não foi definida o nome da task no construtor do comando" unless task
+    def initialize(command: nil, log: nil)
+      raise " ༼ つ ◕_◕ ༽つ OOOPS... It was not set the 'command' name in the command initialize." unless command
       @daemon ||= nil
-      @task = task
+      @command = command
       @log = (log) ?  File.join(DAEMON_ROOT, log) : File.join(DAEMON_ROOT, DAEMON_CONFIG['default_log'])
     end
 
@@ -19,16 +18,16 @@ module FclRailsDaemon
     end
 
     def self.help
-      raise "Não foi implementado o método self.help no comando"
+      raise " ༼ つ ◕_◕ ༽つ OOOPS... It was not implemented 'self.help' method in command"
     end
 
     def log
-      puts "#{@log} (#{@task})"
+      puts "#{@log} (#{@command})"
     end
 
     def run(&block)
       @daemon = Daemons.call(multiple: true) do
-        # força a saída para o output definido
+        # Force the output to the defined log
         $stdout.reopen(@log, 'a')
         $stderr.reopen(@log, 'a')
         $stdout.sync = true
@@ -38,20 +37,20 @@ module FclRailsDaemon
     end
 
     def start
-      pid = get_pid @task
+      pid = get_pid @command
       if running?(pid)
-        puts "proc: processo com pid #{pid} está rodando. (#{@task})"
+        puts "proc: processo com pid #{pid} está rodando. (#{@command})"
         return
       end
       run
-      set_pid(@task, @daemon.pid.pid) if @daemon
+      set_pid(@command, @daemon.pid.pid) if @daemon
     end
 
     def stop
-      pid = get_pid @task
+      pid = get_pid @command
 
       unless running? pid
-        puts "proc: processo não está rodando. (#{@task})"
+        puts "proc: processo não está rodando. (#{@command})"
         return
       end
       kill pid
@@ -63,23 +62,23 @@ module FclRailsDaemon
     end
 
     def status
-      pid = get_pid @task
+      pid = get_pid @command
       if running? pid
-        puts "proc: processo com pid #{pid} está rodando. (#{@task}) "
+        puts "proc: processo com pid #{pid} está rodando. (#{@command}) "
       else
-        puts "proc: processo não está rodando. (#{@task}) "
+        puts "proc: processo não está rodando. (#{@command}) "
       end
     end
 
     private
-    def get_pid(task)
+    def get_pid(command)
       pids = YAML.load_file(@@pids_file)
-      (pids.has_key?(task)) ? pids[task] : nil
+      (pids.has_key?(command)) ? pids[command] : nil
     end
 
-    def set_pid(task, pid)
+    def set_pid(command, pid)
       pids = YAML.load_file(@@pids_file)
-      pids[task] = pid
+      pids[command] = pid
       File.open(@@pids_file, 'wb') do |f|
         f <<  pids.to_yaml
       end
@@ -103,20 +102,20 @@ module FclRailsDaemon
       if pid
         begin
           Process.kill("KILL", pid)
-          set_pid(@task, nil)
+          set_pid(@command, nil)
           status = true
         rescue Errno::ESRCH
-          puts "proc: não existe processo com pid #{pid}. (#{@task})"
+          puts "proc: não existe processo com pid #{pid}. (#{@command})"
           status = false
         ensure
           if status == false
-            puts "proc: processo com pid #{pid} está parado. (#{@task})"
+            puts "proc: processo com pid #{pid} está parado. (#{@command})"
           else
-            puts "proc: processo com pid #{pid} foi parado. (#{@task})"
+            puts "proc: processo com pid #{pid} foi parado. (#{@command})"
           end
         end
       else
-        puts "proc: não existe processo com pid #{pid}. (#{@task})"
+        puts "proc: não existe processo com pid #{pid}. (#{@command})"
       end
     end
 
