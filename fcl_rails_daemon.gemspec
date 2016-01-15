@@ -16,9 +16,11 @@ Gem::Specification.new do |spec|
   spec.test_files    = `git ls-files -- {test,spec}/*`.split("\n")
   spec.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   spec.require_paths = ["lib"]
+  spec.required_ruby_version = '>= 2.1.2'
 
-  spec.summary       = %q{Projeto utilizado para gerar comandos que podem ser executados em background (daemons).}
-  spec.description   = %q{Este tem como maior caracteristica a facilidade de gerar comandos e gerenciá-los de forma independente.}
+  spec.summary       = %q{Project designed to generate commands that run in the background (daemons).}
+  spec.description   = %q{ This aims to make it easy to create commands ( ruby scripts) and run them in the background (daemon).
+CLI has easy to use, where to control the processes related to commands.}
 
   spec.add_dependency "bundler"
   spec.add_dependency "activesupport"
