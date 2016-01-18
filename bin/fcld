@@ -27,7 +27,8 @@ class CommandSample < FclRailsDaemon::Daemon
   def initialize
     # Set the parameter "command" (name that will be referenced in the command entered in the terminal)
     # The parameter "log" is optional but suggest it is set a log for each command to prevent many commands write on deafult log (if you have many commands in your application)
-    super(command: "command_sample", log: "log/command_sample.log")
+    # The parameter "process_name" is optional (is the name that will be assigned to the process)
+    super(command: "command_sample", log: "log/command_sample.log", process_name: "command_sample")
   end
 
   # Is necessary to implement the method "self.help"

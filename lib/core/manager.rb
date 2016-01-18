@@ -3,20 +3,11 @@ module FclRailsDaemon
     @@commands = FclRailsDaemon::Recorder.load
 
     def self.run(argv)
-      self.set_env(argv) if argv.include?('--env')
       COMMAND['fcld'] = true
-
-      if argv.include?('--pids')
-        puts Daemon.pids
-        exit
-      end
-
-      if argv.include?('--logs')
-        registered = self.get_registered nil
-        registered.each { |command| command.send('logs') }
-        exit
-      end
-
+      self.set_env(argv) if argv.include?('--env')
+      self.pids if argv.include?('--pids')
+      self.logs if argv.include?('--logs')
+      self.set_process_name(argv) if (argv.include?('--command') && argv.include?('--process_name'))
       self.create_command(argv) if argv.include?('--create')
       self.help(ARGV) unless self.valid?(argv)
 
@@ -30,7 +21,6 @@ module FclRailsDaemon
       registered.each { |command| command.send(action) }
     end
 
-
     def self.help(argv)
       action = argv.last
       command ||= nil
@@ -39,7 +29,7 @@ module FclRailsDaemon
         command = argv[i]
       end
       helpers = self.get_helpers(command)
-      self.show helpers
+      self.show_helpers helpers
     end
 
     def self.valid?(argv)
@@ -47,38 +37,6 @@ module FclRailsDaemon
     end
 
     private
-    def self.show(helpers)
-      prefix = DAEMON_CONFIG['command_prefix']
-
-      puts "\n------------------------------------------------------------------------------------------------------------\n"
-      puts "  FCL_RAILS_DAEMON\n"
-      puts "------------------------------------------------------------------------------------------------------------\n"
-      puts "  * Use the --help option to view the manual ( --command to see the manual of a specific command)\n"
-      puts "    #{prefix} --help\n"
-      puts "    #{prefix} --command sample_command --help\n\n"
-      puts "  * Use the --create option to create a new command"
-      puts "    #{prefix} --create my_first_command\n\n"
-      puts "  * Use the |start|stop|restart|status| option to control all processes at once"
-      puts "    #{prefix} start\n\n"
-      puts "  * Use the --command option --logs to control specific command"
-      puts "    #{prefix} --command sample_command start\n\n"
-      puts "  * Use the --pids option to see pids process for each command"
-      puts "    #{prefix} --pids\n\n"
-      puts "  * Use the --logs option --logs to see the log files set for each command"
-      puts "    #{prefix} --logs\n\n"
-      puts "------------------------------------------------------------------------------------------------------------\n"
-      puts "  COMMANDS REGISTERED\n"
-      puts "------------------------------------------------------------------------------------------------------------\n"
-
-      helpers.each do |h|
-        puts "  * #{h[:description]}"
-        h[:sample].each do |e|
-          puts "   #{e}"
-        end
-        puts ""
-      end
-      exit
-    end
 
     def self.get_registered(command = nil)
       list = []
@@ -110,6 +68,44 @@ module FclRailsDaemon
       list
     end
 
+    def self.show_helpers(helpers)
+      prefix = DAEMON_CONFIG['command_prefix']
+
+      puts "\n------------------------------------------------------------------------------------------------------------\n"
+      puts "  FCL_RAILS_DAEMON\n"
+      puts "------------------------------------------------------------------------------------------------------------\n"
+      puts "  [start|stop|restart|status] option to control all processes at once"
+      puts "    #{prefix} start\n\n"
+      puts "  [--help] to view the manual \n"
+      puts "    #{prefix} --help\n"
+      puts "    [--command] to see the manual of a specific command\n"
+      puts "      #{prefix} --command sample_command --help\n\n"
+      puts "  [--env] to define the environment of the Rails application"
+      puts "    #{prefix} --env production start\n\n"
+      puts "  [--create] to create a new command"
+      puts "    #{prefix} --create my_first_command\n\n"
+      puts "  [--command] to control specific command"
+      puts "    #{prefix} --command sample_command start\n"
+      puts "    [--process_name] to define a name for the process"
+      puts "      #{prefix} --command sample_command --process_name my_process start\n\n"
+      puts "  [--pids] option to see pids process for each command"
+      puts "    #{prefix} --pids\n\n"
+      puts "  [--logs] option to see the log files set for each command"
+      puts "    #{prefix} --logs\n\n"
+      puts "------------------------------------------------------------------------------------------------------------\n"
+      puts "  COMMANDS REGISTERED\n"
+      puts "------------------------------------------------------------------------------------------------------------\n"
+
+      helpers.each do |h|
+        puts "  #{h[:description]}"
+        h[:sample].each do |e|
+          puts "   #{e}"
+        end
+        puts ""
+      end
+      exit
+    end
+
     def self.set_env(argv)
       i = argv.index('--env') + 1
       env = argv[i]
@@ -138,7 +134,8 @@ class #{command_camel} < FclRailsDaemon::Daemon
   def initialize
     # Set the parameter "command" (name that will be referenced in the command entered in the terminal)
     # The parameter "log" is optional but suggest it is set a log for each command to prevent many commands write on deafult log (if you have many commands in your application)
-    super(command: "#{command_undescore}", log: "log/#{command_undescore}.log")
+    # The parameter "process_name" is optional (is the name that will be assigned to the process)
+    super(command: "#{command_undescore}", log: "log/#{command_undescore}.log", process_name: "#{command_undescore}")
   end
 
   # Is necessary to implement the method "self.help"
@@ -187,6 +184,34 @@ end
         puts "New command: #{file} "
         puts "Commands registered: #{file_record} "
       end
+      exit
+    end
+
+    def self.set_process_name(argv)
+      i = argv.index('--command') + 1
+      command = argv[i]
+      i = argv.index('--process_name') + 1
+      name = argv[i]
+      if Daemon.commands_valid.include? command
+        puts " ༼ つ ◕_◕ ༽つ OOOPS... The command can not be named #{command}"
+        exit
+      end
+      if Daemon.commands_valid.include? name
+        puts " ༼ つ ◕_◕ ༽つ OOOPS... The process can not be named #{command}"
+        exit
+      end
+      registered = self.get_registered command
+      registered.each { |command| command.process_name = name }
+    end
+
+    def self.logs
+      registered = self.get_registered nil
+      registered.each { |command| puts "#{command.process_name}: #{command.log_file}" }
+      exit
+    end
+
+    def self.pids
+      puts Daemon.pids
       exit
     end
 
