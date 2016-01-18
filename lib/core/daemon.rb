@@ -1,6 +1,5 @@
 module FclRailsDaemon
   class Daemon
-
     cattr_reader :commands_valid
     @@pids_file = File.join(DAEMON_ROOT, DAEMON_CONFIG['pids_file'])
     @@commands_valid = ['start', 'stop', 'restart', 'status']
@@ -21,11 +20,18 @@ module FclRailsDaemon
       raise " ༼ つ ◕_◕ ༽つ OOOPS... It was not implemented 'self.help' method in command"
     end
 
-    def log
-      puts "#{@log} (#{@command})"
+    def logs
+      puts "#{@log} - (#{@command})"
     end
 
     def run(&block)
+      #Load environment file (rails project)
+      if COMMAND['fcld']
+        env_file = File.join(DAEMON_ROOT, "config", "environment.rb")
+        raise " ༼ つ ◕_◕ ༽つ OOOPS... Could not find the Rails environment file.    " unless File.exist? env_file
+        require env_file
+      end
+
       @daemon = Daemons.call(multiple: true) do
         # Force the output to the defined log
         $stdout.reopen(@log, 'a')

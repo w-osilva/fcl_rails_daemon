@@ -3,6 +3,8 @@ module FclRailsDaemon
     @@commands = FclRailsDaemon::Recorder.load
 
     def self.run(argv)
+      self.set_env(argv) if argv.include?('--env')
+      COMMAND['fcld'] = true
 
       if argv.include?('--pids')
         puts Daemon.pids
@@ -11,12 +13,11 @@ module FclRailsDaemon
 
       if argv.include?('--logs')
         registered = self.get_registered nil
-        registered.each { |command| command.send('log') }
+        registered.each { |command| command.send('logs') }
         exit
       end
 
       self.create_command(argv) if argv.include?('--create')
-
       self.help(ARGV) unless self.valid?(argv)
 
       command ||= nil
@@ -109,8 +110,13 @@ module FclRailsDaemon
       list
     end
 
-    def self.create_command(argv)
+    def self.set_env(argv)
+      i = argv.index('--env') + 1
+      env = argv[i]
+      ENV['RAILS_ENV'] = env
+    end
 
+    def self.create_command(argv)
       i = argv.index('--create') + 1
       command = argv[i]
       unless command
