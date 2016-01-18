@@ -1,63 +1,79 @@
 # FclRailsDaemon
 
-Esta gem foi desenvolvida com a partir da necessidade de gerenciamento através do terminal em processos que por sua vez
-executam determinados programas escritos em ruby.
+This gem was developed to facilitate through the CLI management processes running ruby programs.
 
-## Instalação
+## Installation
 
-A partir do Gemfile
+From Gemfile
 
 ```ruby
 gem 'fcl_rails_daemon'
 ```
 
-Então execute:
+Then run:
 
     $ bundle
 
-Ou somente instale:
+Or only install:
 
     $ gem install fcl_rails_daemon
 
 
-## Configuração
+## Configuration
 
-Após a instalação é necessário criar os diretórios e arquivos de configuração, para isso execute
+After installation you need to create the directories and configuration files for this run
 
     $ fcld --configure
 
-Serão criados:
+Will be created:
 
- * _config/fcld_rails_daemon.rb_ (Arquivo onde são registrados os comandos)
- * _tmp/pids/fcld.yml (Arquivo onde_ são registrados os pids dos comandos)
- * _lib/fcld_comandos/comando_exemplo.rb_ (Um modelo para criação de comandos)
-
-
-## Como Usar?
-
-#### Podemos adicionar comandos através do parametro --create
-
-    $ fcld --create meu_primeiro_comando
-
- * Cria um comando em lib/fcld_comandos
- * Efetua o registro em config/fcl_rails_daemon.rb
+ * *config/fcld_rails_daemon.rb* (File where the commands are recorded)
+ * *tmp/pids/fcld.yml* (Pids file where the commands are recorded)
+ * *lib/fcl_rails_daemon/command_sample.rb* (A command template)
 
 
-#### Podemos consultar o manual para descobrir quais os comandos disponíveis através do parametro --help
+## How to use?
+
+#### [--create] Create a new command
+
+    $ fcld --create my_first_command
+
+ * Adds a command in lib/fcl_rails_daemon
+ * Records the command in config/fcl_rails_daemon.rb
+
+
+#### [--help] Displays the manual for commands and options
 
     $ fcld --help
 
 
-#### Podemos consultar os pids de processos gerenciados pelo daemon através do parametro --pids
+#### [--pids] Displays the pids of the commands registered
 
     $ fcld --pids
 
 
-#### Podemos executar as ações básicas de um daemon (parametros start | stop | restart | status)
+#### [--logs] Displays the logs files for each registered command
+
+    $ fcld --logs
+
+
+#### [start|stop|restart|status] Performs action for all registered commands
 
     $ fcld start
 
 
-#### Podemos controlar processos individualnmente através do parametro --task
+#### [--env] Sets the environment for Rails application
 
-    $ fcld --task meu_primeiro_comando start
+    $ fcld --env production start
+
+
+#### [--command] Individual action to run a registered command
+
+    $ fcld --command my_first_command start
+
+
+#### [--process_name] Sets a name to be assigned to the process (by default the name is the name of the command)
+
+    $ fcld --command my_first_command --process_name foo_my_first_command start
+
+
