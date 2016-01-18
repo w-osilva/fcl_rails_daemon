@@ -1,61 +1,59 @@
 #!/usr/bin/env ruby
 require 'fileutils'
 require 'fcl_rails_daemon/config'
+COMMAND['fcld'] = true
 
 base = DAEMON_ROOT
-config_dir = "config"
-config_dir = File.join(base, config_dir)
+config_dir = File.join(base, DAEMON_CONFIG['config_path'])
 FileUtils.mkdir_p(config_dir) unless File.directory?(config_dir)
-config_file = File.join(config_dir, 'fcld_rails_daemon.rb')
+commands_file = File.join(config_dir, 'fcl_rails_daemon.rb')
 
 if ARGV.include? "--configure"
-  config_file_content = <<-FILE
-# Carrega arquivo de environment (projeto rails)
-if File.exist?(File.join("#{DAEMON_ROOT}", "config", "environment.rb"))
-  require File.join("#{DAEMON_ROOT}", "config", "environment.rb")
-end
+  commands_file_content = <<-FILE
+# To register commands use the FclRailsDaemon::Recorder class
+#  :command is the command name
+#  :class_reference is the class to which it is
+#
+# FclRailsDaemon::Recorder.add(command: 'command_sample', class_reference: CommandSample)
 
-# Para registrar seus comandos é necessário adicioná-los conforme o exemplo abaixo
-# É necessário que seja informado o nome do comando e qual a classe ao qual ele representa
-# Ex:
-# FclRailsDaemon::Registrador.add(comando: 'comando_exemplo', classe: ComandoExemplo)
   FILE
 
-  File.open(config_file, 'wb') {|f| f.write(config_file_content) } unless File.exist?(config_file)
+  File.open(commands_file, 'wb') {|f| f.write(commands_file_content) } unless File.exist?(commands_file)
 
   command_sample_content = <<-FILE
-class ComandoExemplo < FclRailsDaemon::Daemon
+class CommandSample < FclRailsDaemon::Daemon
 
-  # Obrigatóriamente é necessário implementar o método "initialize"
+  # Is necessary to implement the method "initialize"
   def initialize
-    # Definir o parametro "task" (nome que será referenciado no comando digitado no terminal).
-    #
-    # O parametro "log" é opcional mas sugiro que seja definido um log para cada comando para evitar que muitos comandos
-    # escrevam no log deafult (caso tenha# muitos comandos)
-    super(task: "comando_exemplo", log: "log/comando_exemplo.log")
+    # Set the parameter "command" (name that will be referenced in the command entered in the terminal)
+    # The parameter "log" is optional but suggest it is set a log for each command to prevent many commands write on deafult log (if you have many commands in your application)
+    # The parameter "process_name" is optional (is the name that will be assigned to the process)
+    super(command: "command_sample", log: "log/command_sample.log", process_name: "command_sample")
   end
 
-  # Obrigatóriamente é necessário implementar o método self.help
+  # Is necessary to implement the method "self.help"
   def self.help
-    # Retornar Hash com "descricao" e "exemplo"
+    # Should return a hash with " description" and "example"
     {
-      descricao: "Descrição do comando comando_exemplo :) - Executado a cada 1 min",
-      exemplo: ["--task comando_exemplo start | stop | restart | status"]
+      description: "This command is a sample - Run every 1 minute",
+      sample: ["--command command_sample |start|stop|restart|status|"]
     }
   end
 
-  # Obrigatóriamente é necessário implementar o método run
+  # Is necessary to implement the method "run"
   def run
-    # Chamar o método run da classe pai (super) passando um bloco que vai conter seu código
+    # Call the run method of the parent class (super) through a block that will contain your code
     super do
-      # Caso deseje que o seu comando fique executando repetidamente coloque dentro de um loop
-      loop do
-        # Escreva seu código aqui!!
-        # Não use Process.exit(true), exit(), abort() em seu codigo pois infere na morte do processo do Daemon
-        puts "Está executando comando_exemplo!  :)"
+      # If you want your command be running repeatedly put inside a loop
+        @counter_sample = 0
+        loop do
+        # Write your code here !!!
+        # Do not use Process.exit (true) , exit () , abort ( ) in your code because it infers the death of the Daemon process
 
-        # Espera em segundos antes de executar seu comando outra vez
-        # Util no caso de simular um processo cronológico (esse exemplo vai executar o comando a cada 10 segundos)
+        @counter_sample += 1
+        puts "Running "+ @command +" for " + @counter_sample.to_s + " time :)"
+
+        # Wait in seconds before running your command again
         sleep(10)
       end
     end
@@ -69,7 +67,7 @@ end
   commands_dir = File.join(base, commands_dir)
   FileUtils.mkdir_p(commands_dir) unless File.directory?(commands_dir)
 
-  command_file = File.join(commands_dir, 'comando_exemplo.rb')
+  command_file = File.join(commands_dir, 'command_sample.rb')
   File.open(command_file, 'wb') {|f| f.write(command_sample_content) } unless File.exists?(command_file)
 
   log_dir = "log"
@@ -79,18 +77,18 @@ end
   pids_dir = File.join(base, "tmp/pids")
   pids_file = File.join(base, DAEMON_CONFIG['pids_file'])
   FileUtils.mkdir_p(pids_dir) unless File.directory?(pids_dir)
-  File.open(pids_file, 'wb') {|f| f << "default:" } unless File.exist?(pids_file)
+  File.open(pids_file, 'wb') {|f| f << "fcl_rails_daemon:" } unless File.exist?(pids_file)
 
-  puts "[Ok] Gem foi configurada!"
+  puts " ༼ つ ◕_◕ ༽つ OK... Gem has been set!!!    "
   exit
 end
 
-unless File.exist?(config_file)
-  puts "[Ooops] Gem ainda não foi configurada... Para configurar execute o comando fcld --configure "
+unless File.exist?(commands_file)
+  puts " ༼ つ ◕_◕ ༽つ OOOPS... Gem has not yet been set. To set run 'fcld --configure'    "
   exit
 end
 
 require 'fcl_rails_daemon'
 require 'fcl_rails_daemon/version'
 
-FclRailsDaemon::Gerenciador.run(ARGV)
+FclRailsDaemon::Manager.run(ARGV)

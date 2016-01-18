@@ -1,3 +1,4 @@
+require "rails"
 require "fcl_rails_daemon/version"
 require "fcl_rails_daemon/config"
 require 'fileutils'
@@ -6,13 +7,14 @@ require 'daemons'
 require 'active_support'
 
 module FclRailsDaemon end
-
 require_relative "core/daemon"
-comandos_dir = File.join(DAEMON_ROOT, DAEMON_CONFIG['command_path'])
-if File.directory?(comandos_dir)
-  Dir[File.join(comandos_dir, "**/*.rb")].each {|file| require file }
-end
-require_relative "core/registrador.rb"
-require_relative "core/gerenciador.rb"
+require_relative "core/recorder.rb"
+require_relative "core/manager.rb"
 
-require File.join(DAEMON_ROOT, "config", "fcld_rails_daemon.rb")
+# Load commands files
+command_dir = File.join(DAEMON_ROOT, DAEMON_CONFIG['command_path'])
+raise " ༼ つ ◕_◕ ༽つ OOOPS... Could not find the command directory. Run 'fcld --configure'   " unless File.directory? command_dir
+Dir[File.join(command_dir, "**/*.rb")].each {|file| require file }
+
+require File.join(DAEMON_ROOT, "config", "fcl_rails_daemon.rb")
+
