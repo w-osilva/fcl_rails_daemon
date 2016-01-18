@@ -1,36 +1,14 @@
 #!/usr/bin/env ruby
 require 'fileutils'
 require 'fcl_rails_daemon/config'
+COMMAND['fcld'] = true
 
 base = DAEMON_ROOT
 config_dir = File.join(base, DAEMON_CONFIG['config_path'])
 FileUtils.mkdir_p(config_dir) unless File.directory?(config_dir)
-config_file = File.join(config_dir, 'config.rb')
-commands_file = File.join(config_dir, 'commands.rb')
+commands_file = File.join(config_dir, 'fcl_rails_daemon.rb')
 
 if ARGV.include? "--configure"
-  config_file_content = <<-FILE
-# FCL RAILS DAEMON
-#
-# Creator: Washington Silva
-# Contact w-osilva@hotmail.com
-
-# Load environment file (rails project)
-env_file = File.join(File.dirname(__dir__), "environment.rb")
-raise " ༼ つ ◕_◕ ༽つ OOOPS... Could not find the environment file.    " unless File.exist? env_file
-require env_file
-
-# Load commands files
-command_dir = File.join(DAEMON_ROOT, DAEMON_CONFIG['command_path'])
-raise " ༼ つ ◕_◕ ༽つ OOOPS... Could not find the command directory. Run 'fcld --configure'   " unless File.directory? command_dir
-Dir[File.join(command_dir, "**/*.rb")].each {|file| require file }
-
-# Load commands registered
-require_relative 'commands.rb'
-  FILE
-
-  File.open(config_file, 'wb') {|f| f.write(config_file_content) } unless File.exist?(config_file)
-
   commands_file_content = <<-FILE
 # To register commands use the FclRailsDaemon::Recorder class
 #  :command is the command name
@@ -104,7 +82,7 @@ end
   exit
 end
 
-unless File.exist?(config_file)
+unless File.exist?(commands_file)
   puts " ༼ つ ◕_◕ ༽つ OOOPS... Gem has not yet been set. To set run 'fcld --configure'    "
   exit
 end
