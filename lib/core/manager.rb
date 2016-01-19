@@ -3,7 +3,6 @@ module FclRailsDaemon
     @@commands = FclRailsDaemon::Recorder.load
 
     def self.run(argv)
-      COMMAND['fcld'] = true
       self.set_env(argv) if argv.include?('--env')
       self.pids if argv.include?('--pids')
       self.logs if argv.include?('--logs')
