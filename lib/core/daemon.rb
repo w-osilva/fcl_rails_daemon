@@ -25,10 +25,12 @@ module FclRailsDaemon
     end
 
     def run(&block)
+      #check if exist rails environment file
       env_file = File.join(DAEMON_ROOT, "config", "environment.rb")
       raise " ༼ つ ◕_◕ ༽つ OOOPS... Could not find the Rails environment file.    " unless File.exist? env_file
 
-      @daemon = Daemons.call({ multiple: true, app_name: @process_name }) do
+      print @process_name
+      @daemon = Daemons.call(multiple: true, app_name: '' ) do
         #Load environment file (rails project)
         require env_file
 
