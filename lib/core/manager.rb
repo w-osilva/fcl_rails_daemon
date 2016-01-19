@@ -42,7 +42,7 @@ module FclRailsDaemon
       list = []
       @@registered ||= {}
       if command
-        raise " ༼ つ ◕_◕ ༽つ OOOPS... Command '#{command}' is not registered." unless @@commands.has_key? command
+        raise " ༼ つ ◕_◕ ༽つ OOOPS... Command '#{command}' is not registered.    " unless @@commands.has_key? command
         @@registered[command] = (@@registered.has_key? command) ? @@registered[command] : @@commands[command].new
         list << @@registered[command]
         return list
@@ -57,7 +57,7 @@ module FclRailsDaemon
       list = []
       @@helpers ||= {}
       if command
-        raise " ༼ つ ◕_◕ ༽つ OOOPS... Command '#{command}' is not registered." unless @@commands.has_key? command
+        raise " ༼ つ ◕_◕ ༽つ OOOPS... Command '#{command}' is not registered.    " unless @@commands.has_key? command
         @@helpers[command] = (@@helpers.has_key? command) ? @@helpers[command] : @@commands[command].help
         list << @@helpers[command]
         return list
@@ -116,11 +116,11 @@ module FclRailsDaemon
       i = argv.index('--create') + 1
       command = argv[i]
       unless command
-        puts " ༼ つ ◕_◕ ༽つ OOOPS... The command name has not been defined"
+        puts " ༼ つ ◕_◕ ༽つ OOOPS... The command name has not been defined    "
         exit
       end
       if Daemon.commands_valid.include? command
-        puts " ༼ つ ◕_◕ ༽つ OOOPS... The command can not be named #{command}"
+        puts " ༼ つ ◕_◕ ༽つ OOOPS... The command can not be named #{command}    "
         exit
       end
 
@@ -172,7 +172,7 @@ end
       file = File.join(DAEMON_ROOT, DAEMON_CONFIG['command_path'], command_undescore + '.rb' )
 
       if File.exist?(file)
-        puts " ༼ つ ◕_◕ ༽つ OOOPS... Command already exists."
+        puts " ༼ つ ◕_◕ ༽つ OOOPS... Command already exists.   "
       else
         File.open(file, 'wb') {|f| f.write(content) }
 
@@ -180,9 +180,9 @@ end
         content_to_register = "\nFclRailsDaemon::Recorder.add(command: '#{command_undescore}', ref_class: #{command_camel})"
         File.open(file_record, 'a+') {|f| f << content_to_register }
 
-        puts " ༼ つ ◕_◕ ༽つ OK... Command created and registered!!! "
-        puts "New command: #{file} "
-        puts "Commands registered: #{file_record} "
+        puts " ༼ つ ◕_◕ ༽つ OK... Command created and registered!!!   "
+        puts "New command: #{file}    "
+        puts "Commands registered: #{file_record}    "
       end
       exit
     end
@@ -193,11 +193,11 @@ end
       i = argv.index('--process_name') + 1
       name = argv[i]
       if Daemon.commands_valid.include? command
-        puts " ༼ つ ◕_◕ ༽つ OOOPS... The command can not be named #{command}"
+        puts " ༼ つ ◕_◕ ༽つ OOOPS... The command can not be named #{command}    "
         exit
       end
       if Daemon.commands_valid.include? name
-        puts " ༼ つ ◕_◕ ༽つ OOOPS... The process can not be named #{command}"
+        puts " ༼ つ ◕_◕ ༽つ OOOPS... The process can not be named #{command}    "
         exit
       end
       registered = self.get_registered command

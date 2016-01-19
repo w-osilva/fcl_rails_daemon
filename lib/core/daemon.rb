@@ -8,7 +8,7 @@ module FclRailsDaemon
     @@commands_valid = ['start', 'stop', 'restart', 'status']
 
     def initialize(command: nil, log: nil, process_name: nil)
-      raise " ༼ つ ◕_◕ ༽つ OOOPS... It was not set the 'command' name in the command initialize." unless command
+      raise " ༼ つ ◕_◕ ༽つ OOOPS... It was not set the 'command' name in the command initialize.    " unless command
       @daemon ||= nil
       @command = command
       @log_file = (log) ?  File.join(DAEMON_ROOT, log) : File.join(DAEMON_ROOT, DAEMON_CONFIG['default_log'])
@@ -21,7 +21,7 @@ module FclRailsDaemon
     end
 
     def self.help
-      raise " ༼ つ ◕_◕ ༽つ OOOPS... It was not implemented 'self.help' method in command"
+      raise " ༼ つ ◕_◕ ༽つ OOOPS... It was not implemented 'self.help' method in command    "
     end
 
     def run(&block)

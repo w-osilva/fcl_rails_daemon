@@ -91,4 +91,9 @@ end
 require 'fcl_rails_daemon'
 require 'fcl_rails_daemon/version'
 
-FclRailsDaemon::Manager.run(ARGV)
+begin
+  FclRailsDaemon::Manager.run(ARGV)
+rescue => e
+  puts e.message
+end
+
