@@ -1,4 +1,3 @@
-COMMAND = {'fcld' => false}
 DAEMON_ROOT = File.expand_path("")
 DAEMON_CONFIG = {
   "pids_file" => 'tmp/pids/fcld.yml',

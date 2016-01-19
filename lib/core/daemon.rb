@@ -25,14 +25,13 @@ module FclRailsDaemon
     end
 
     def run(&block)
-      #Load environment file (rails project)
-      if COMMAND['fcld']
-        env_file = File.join(DAEMON_ROOT, "config", "environment.rb")
-        raise " ༼ つ ◕_◕ ༽つ OOOPS... Could not find the Rails environment file.    " unless File.exist? env_file
-        require env_file
-      end
+      env_file = File.join(DAEMON_ROOT, "config", "environment.rb")
+      raise " ༼ つ ◕_◕ ༽つ OOOPS... Could not find the Rails environment file.    " unless File.exist? env_file
 
-      @daemon = Daemons.call(multiple: true, app_name: @process_name) do
+      @daemon = Daemons.call({ multiple: true, app_name: @process_name }) do
+        #Load environment file (rails project)
+        require env_file
+
         #set process_name
         Process.setproctitle(@process_name)
 
