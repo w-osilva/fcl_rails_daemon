@@ -24,11 +24,15 @@ module FclRailsDaemon
       raise " ༼ つ ◕_◕ ༽つ OOOPS... It was not implemented 'self.help' method in command    "
     end
 
-    def run(&block)
+    def run(loop: false, sleep: nil, &block )
+      raise " ༼ つ ◕_◕ ༽つ OOOPS... Block is mandatory to run the command.    " unless block_given?
+
+      #check if exist rails environment file
       env_file = File.join(DAEMON_ROOT, "config", "environment.rb")
       raise " ༼ つ ◕_◕ ༽つ OOOPS... Could not find the Rails environment file.    " unless File.exist? env_file
 
-      @daemon = Daemons.call({ multiple: true, app_name: @process_name }) do
+      print @process_name
+      @daemon = Daemons.call(multiple: true, app_name: '' ) do
         #Load environment file (rails project)
         require env_file
 
@@ -40,7 +44,15 @@ module FclRailsDaemon
         $stderr.reopen(@log_file, 'a')
         $stdout.sync = true
 
-        block.call
+        if loop.equal? true
+          loop do
+            runner &block
+            sleep(sleep) if sleep.is_a? Numeric
+          end
+        else
+          runner &block
+        end
+
       end
     end
 
@@ -124,6 +136,15 @@ module FclRailsDaemon
         end
       else
         puts "#{@process_name}: there is no process with pid #{pid}."
+      end
+    end
+
+    def runner(&block)
+      begin
+        block.call
+      rescue Exception => e
+        puts e.message
+        e.backtrace.each {|l| puts l}
       end
     end
 
