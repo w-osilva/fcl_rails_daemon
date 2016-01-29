@@ -146,22 +146,12 @@ class #{command_camel} < FclRailsDaemon::Daemon
     }
   end
 
-  # Is necessary to implement the method "run"
+    # Is necessary to implement the method "run"
   def run
     # Call the run method of the parent class (super) through a block that will contain your code
-    super do
-      # If you want your command be running repeatedly put inside a loop
-        @counter_sample = 0
-        loop do
-        # Write your code here !!!
-        # Do not use Process.exit (true) , exit () , abort ( ) in your code because it infers the death of the Daemon process
-
-        @counter_sample += 1
-        puts "Running "+ @command +" for " + @counter_sample.to_s + " time :)"
-
-        # Wait in seconds before running your command again
-        sleep(10)
-      end
+    # You can optionally provide the parameter "loop" and "sleep" for the command to run repeatedly
+    super(loop: true, sleep:10) do
+      puts "Running "+ @command +" :)"
     end
   end
 
@@ -176,7 +166,7 @@ end
         File.open(file, 'wb') {|f| f.write(content) }
 
         file_record = File.join(DAEMON_ROOT, DAEMON_CONFIG['register_file'] )
-        content_to_register = "\nFclRailsDaemon::Recorder.add(command: '#{command_undescore}', ref_class: #{command_camel})"
+        content_to_register = "\nFclRailsDaemon::Recorder.add(command: '#{command_undescore}', class_reference: #{command_camel})"
         File.open(file_record, 'a+') {|f| f << content_to_register }
 
         puts " ༼ つ ◕_◕ ༽つ OK... Command created and registered!!!   "
