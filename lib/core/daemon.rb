@@ -27,14 +27,9 @@ module FclRailsDaemon
     def run(loop: false, sleep: nil, &block )
       raise " ༼ つ ◕_◕ ༽つ OOOPS... Block is mandatory to run the command.    " unless block_given?
 
-      #check if exist rails environment file
-      env_file = File.join(DAEMON_ROOT, "config", "environment.rb")
-      raise " ༼ つ ◕_◕ ༽つ OOOPS... Could not find the Rails environment file.    " unless File.exist? env_file
-
       print @process_name
       @daemon = Daemons.call(multiple: true, app_name: '' ) do
         #Load environment file (rails project)
-        require env_file
 
         #set process_name
         Process.setproctitle(@process_name)
