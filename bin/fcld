@@ -77,6 +77,12 @@ unless File.exist?(commands_file)
   exit
 end
 
+if ARGV.include?("--env")
+  i = ARGV.index('--env') + 1
+  env = ARGV[i]
+  ENV['RAILS_ENV'] = env
+end
+
 #check if exist rails environment file
 env_file = File.join(DAEMON_ROOT, "config", "environment.rb")
 raise " ༼ つ ◕_◕ ༽つ OOOPS... Could not find the Rails environment file.    " unless File.exist? env_file

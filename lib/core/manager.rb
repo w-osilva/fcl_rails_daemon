@@ -3,7 +3,6 @@ module FclRailsDaemon
     @@commands = FclRailsDaemon::Recorder.load
 
     def self.run(argv)
-      self.set_env(argv) if argv.include?('--env')
       self.pids if argv.include?('--pids')
       self.logs if argv.include?('--logs')
       self.set_process_name(argv) if (argv.include?('--command') && argv.include?('--process_name'))
@@ -103,12 +102,6 @@ module FclRailsDaemon
         puts ""
       end
       exit
-    end
-
-    def self.set_env(argv)
-      i = argv.index('--env') + 1
-      env = argv[i]
-      ENV['RAILS_ENV'] = env
     end
 
     def self.create_command(argv)
