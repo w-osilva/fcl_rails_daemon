@@ -6,7 +6,7 @@ require 'fcl_rails_daemon/core/command_generator'
 module FclRailsDaemon
   class Setup
 
-    attr_reader :base, :config_dir, :config_file, :command_sample_file, :logs_dir, :pids_dir, :pids_file
+    attr_reader :base, :config_dir, :config_file, :commands_dir, :command_sample_file, :logs_dir, :pids_dir, :pids_file
 
     def initialize
       @base = DAEMON_ROOT
@@ -44,7 +44,7 @@ module FclRailsDaemon
 
     def create_command_sample
       content = FclRailsDaemon::CommandGenerator.get_content("command_sample")
-      FileUtils.mkdir_p(@commands_dir) unless File.directory?(commands_dir)
+      FileUtils.mkdir_p(@commands_dir) unless File.directory?(@commands_dir)
       File.open(@command_sample_file, 'wb') {|f| f.write(content) } unless File.exists?(@command_sample_file)
     end
 

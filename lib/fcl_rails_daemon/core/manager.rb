@@ -116,6 +116,7 @@ module FclRailsDaemon
         exit
       end
       FclRailsDaemon::CommandGenerator.create(command)
+      exit
     end
 
     def self.set_process_name(argv)

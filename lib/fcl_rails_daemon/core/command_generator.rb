@@ -20,7 +20,6 @@ module FclRailsDaemon
         puts "New command: #{file}    "
         puts "Commands registered: #{file_record}    "
       end
-      exit
     end
 
     def self.get_content(command)
