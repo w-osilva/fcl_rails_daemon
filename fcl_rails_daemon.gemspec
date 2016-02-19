@@ -19,12 +19,10 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 2.0.0'
 
   spec.summary       = %q{This gem was developed to facilitate the creation and management processes in rails projects.}
-  spec.description   = %q{This gem creation commands makes it easy ( Ruby scripts) to run in the background ( daemon ). \n
-It has a friendly CLI to manage processes related to commands.}
+  spec.description   = %q{This gem creation commands makes it easy ( Ruby scripts) to run in the background ( daemon ). It has a friendly CLI to manage processes related to commands.}
 
   spec.add_dependency "bundler"
   spec.add_dependency "activesupport"
-  spec.add_dependency "rake"
   spec.add_dependency "daemons", "~> 1.2"
 
   spec.add_development_dependency "rspec"

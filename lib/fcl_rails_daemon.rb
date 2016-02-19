@@ -1,15 +1,12 @@
-require "rails"
-require "fcl_rails_daemon/version"
-require "fcl_rails_daemon/config"
-require 'fileutils'
+require "fcl_rails_daemon/setup"
 require 'yaml'
 require 'daemons'
-require 'active_support'
 
 module FclRailsDaemon end
-require_relative "core/daemon"
-require_relative "core/recorder.rb"
-require_relative "core/manager.rb"
+
+require "fcl_rails_daemon/core/daemon"
+require "fcl_rails_daemon/core/recorder.rb"
+require "fcl_rails_daemon/core/manager.rb"
 
 # Load commands files
 command_dir = File.join(DAEMON_ROOT, DAEMON_CONFIG['command_path'])
@@ -18,4 +15,3 @@ raise " ༼ つ ◕_◕ ༽つ OOOPS... Could not find the command directory. Ru
 Dir[File.join(command_dir, "**/*.rb")].each {|file| load file }
 
 load File.join(DAEMON_ROOT, "config", "fcl_rails_daemon.rb")
-
