@@ -1,89 +1,32 @@
 #!/usr/bin/env ruby
-require 'fileutils'
-require 'fcl_rails_daemon/config'
+require 'fcl_rails_daemon/setup'
 
-base = DAEMON_ROOT
-config_dir = File.join(base, DAEMON_CONFIG['config_path'])
-FileUtils.mkdir_p(config_dir) unless File.directory?(config_dir)
-commands_file = File.join(config_dir, 'fcl_rails_daemon.rb')
+setup = FclRailsDaemon::Setup.new
 
 if ARGV.include? "--configure"
-  commands_file_content = <<-FILE
-# To register commands use the FclRailsDaemon::Recorder class
-#  :command is the command name
-#  :class_reference is the class to which it is
-#
-# FclRailsDaemon::Recorder.add(command: 'command_sample', class_reference: CommandSample)
-
-  FILE
-
-  File.open(commands_file, 'wb') {|f| f.write(commands_file_content) } unless File.exist?(commands_file)
-
-  command_sample_content = <<-FILE
-class CommandSample < FclRailsDaemon::Daemon
-
-  # Is necessary to implement the method "initialize"
-  def initialize
-    # Set the parameter "command" (name that will be referenced in the command entered in the terminal)
-    # The parameter "log" is optional but suggest it is set a log for each command to prevent many commands write on deafult log (if you have many commands in your application)
-    # The parameter "process_name" is optional (is the name that will be assigned to the process)
-    super(command: "command_sample", log: "log/command_sample.log", process_name: "command_sample")
-  end
-
-  # Is necessary to implement the method "self.help"
-  def self.help
-    # Should return a hash with " description" and "example"
-    {
-      description: "This command is a sample - Run every 1 minute",
-      sample: ["--command command_sample |start|stop|restart|status|"]
-    }
-  end
-
-    # Is necessary to implement the method "run"
-  def run
-    # Call the run method of the parent class (super) through a block that will contain your code
-    # You can optionally provide the parameter "loop" and "sleep" for the command to run repeatedly
-    super(loop: true, sleep:10) do
-      puts "Running "+ @command +" :)"
-    end
-  end
-
-end
-
-  FILE
-
-  commands_dir = DAEMON_CONFIG['command_path']
-  commands_dir = File.join(base, commands_dir)
-  FileUtils.mkdir_p(commands_dir) unless File.directory?(commands_dir)
-
-  command_file = File.join(commands_dir, 'command_sample.rb')
-  File.open(command_file, 'wb') {|f| f.write(command_sample_content) } unless File.exists?(command_file)
-
-  log_dir = "log"
-  log_dir = File.join(base, log_dir)
-  FileUtils.mkdir_p(log_dir) unless File.directory?(log_dir)
-
-  pids_dir = File.join(base, "tmp/pids")
-  pids_file = File.join(base, DAEMON_CONFIG['pids_file'])
-  FileUtils.mkdir_p(pids_dir) unless File.directory?(pids_dir)
-  File.open(pids_file, 'wb') {|f| f << "fcl_rails_daemon:" } unless File.exist?(pids_file)
-
+  setup.configure
   puts " ༼ つ ◕_◕ ༽つ OK... Gem has been set!!!    "
   exit
 end
 
-unless File.exist?(commands_file)
+unless File.exist?(setup.config_file)
   puts " ༼ つ ◕_◕ ༽つ OOOPS... Gem has not yet been set. To set run 'fcld --configure'    "
   exit
 end
 
-#check if exist rails environment file
+if ARGV.include?("--env")
+  i = ARGV.index('--env') + 1
+  env = ARGV[i]
+  ENV['RAILS_ENV'] = env
+end
+
+# check if exist rails environment file
 env_file = File.join(DAEMON_ROOT, "config", "environment.rb")
 raise " ༼ つ ◕_◕ ༽つ OOOPS... Could not find the Rails environment file.    " unless File.exist? env_file
 require env_file
 
+# load gem
 require 'fcl_rails_daemon'
-require 'fcl_rails_daemon/version'
 
 begin
   FclRailsDaemon::Manager.run(ARGV)

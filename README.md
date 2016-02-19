@@ -1,6 +1,6 @@
 # FclRailsDaemon
 
-This gem was developed to facilitate through the CLI management processes running ruby programs.
+This gem was developed to facilitate the creation and management processes in rails projects.
 
 ## Installation
 
