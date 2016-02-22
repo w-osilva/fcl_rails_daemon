@@ -4,6 +4,7 @@ require 'daemons'
 
 module FclRailsDaemon end
 
+require "fcl_rails_daemon/core/command_line"
 require "fcl_rails_daemon/core/daemon"
 require "fcl_rails_daemon/core/recorder.rb"
 require "fcl_rails_daemon/core/manager.rb"
