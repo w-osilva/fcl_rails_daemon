@@ -80,11 +80,9 @@ describe FclRailsDaemon do
 
     it "start a command" do
       new_command
-      enable_output
       output = start_new_command
       expect(output).to include("new_command", "started")
 
-      silence_output
       stop_new_command
       destroy_new_command
     end
@@ -92,11 +90,9 @@ describe FclRailsDaemon do
     it "stop a command" do
       new_command
       start_new_command
-      enable_output
       output = stop_new_command
       expect(output).to include("new_command", "stopped")
 
-      silence_output
       destroy_new_command
     end
   end
