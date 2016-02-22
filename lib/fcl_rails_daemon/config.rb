@@ -1,5 +1,5 @@
-DAEMON_ROOT = File.expand_path("")
-DAEMON_CONFIG = {
+DAEMON_ROOT ||= File.expand_path("")
+DAEMON_CONFIG ||= {
   "pids_file" => 'tmp/pids/fcld.yml',
   "default_log" => 'log/fcld.log',
   "command_prefix" => 'fcld',

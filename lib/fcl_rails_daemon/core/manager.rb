@@ -7,25 +7,19 @@ module FclRailsDaemon
       self.logs if argv.include?('--logs')
       self.set_process_name(argv) if (argv.include?('--command') && argv.include?('--process_name'))
       self.create_command(argv) if argv.include?('--create')
+      self.destroy_command(argv) if argv.include?('--destroy')
       self.help(ARGV) unless self.valid?(argv)
 
       command ||= nil
+      command = CommandLine.parse_option('--command', argv) if argv.include?('--command')
       action = argv.last
-      if argv.include?('--command')
-        i = argv.index('--command') + 1
-        command = argv[i]
-      end
       registered = self.get_registered command
       registered.each { |command| command.send(action) }
     end
 
     def self.help(argv)
-      action = argv.last
       command ||= nil
-      if (argv.include?('--command') && argv.include?('--help'))
-        i = argv.index('--command') + 1
-        command = argv[i]
-      end
+      command = CommandLine.parse_option('--command', argv) if (argv.include?('--command') && argv.include?('--help'))
       helpers = self.get_helpers(command)
       self.show_helpers helpers
     end
@@ -35,7 +29,6 @@ module FclRailsDaemon
     end
 
     private
-
     def self.get_registered(command = nil)
       list = []
       @@registered ||= {}
@@ -82,6 +75,8 @@ module FclRailsDaemon
       puts "    #{prefix} --env production start\n\n"
       puts "  [--create] to create a new command"
       puts "    #{prefix} --create my_first_command\n\n"
+      puts "  [--destroy] to destroy a command"
+      puts "    #{prefix} --destroy my_first_command\n\n"
       puts "  [--command] to control specific command"
       puts "    #{prefix} --command sample_command start\n"
       puts "    [--process_name] to define a name for the process"
@@ -105,83 +100,32 @@ module FclRailsDaemon
     end
 
     def self.create_command(argv)
-      i = argv.index('--create') + 1
-      command = argv[i]
+      command = CommandLine.parse_option('--create', argv)
       unless command
         puts " ༼ つ ◕_◕ ༽つ OOOPS... The command name has not been defined    "
         exit
       end
-      if Daemon.commands_valid.include? command
-        puts " ༼ つ ◕_◕ ༽つ OOOPS... The command can not be named #{command}    "
+      validate_command_name(command)
+      FclRailsDaemon::CommandGenerator.create(command)
+      exit
+    end
+
+    def self.destroy_command(argv)
+      command = CommandLine.parse_option('--destroy', argv)
+      unless command
+        puts " ༼ つ ◕_◕ ༽つ OOOPS... The command name has not been defined    "
         exit
       end
-
-      command_camel = ActiveSupport::Inflector.camelize(command)
-      command_undescore = ActiveSupport::Inflector.underscore(command)
-
-      content = <<-FILE
-class #{command_camel} < FclRailsDaemon::Daemon
-
-  # Is necessary to implement the method "initialize"
-  def initialize
-    # Set the parameter "command" (name that will be referenced in the command entered in the terminal)
-    # The parameter "log" is optional but suggest it is set a log for each command to prevent many commands write on deafult log (if you have many commands in your application)
-    # The parameter "process_name" is optional (is the name that will be assigned to the process)
-    super(command: "#{command_undescore}", log: "log/#{command_undescore}.log", process_name: "#{command_undescore}")
-  end
-
-  # Is necessary to implement the method "self.help"
-  def self.help
-    # Should return a hash with " description" and "example"
-    {
-      description: "This command is a sample - Run every 1 minute",
-      sample: ["--command #{command_undescore} |start|stop|restart|status|"]
-    }
-  end
-
-    # Is necessary to implement the method "run"
-  def run
-    # Call the run method of the parent class (super) through a block that will contain your code
-    # You can optionally provide the parameter "loop" and "sleep" for the command to run repeatedly
-    super(loop: true, sleep:10) do
-      puts "Running "+ @command +" :)"
-    end
-  end
-
-end
-      FILE
-
-      file = File.join(DAEMON_ROOT, DAEMON_CONFIG['command_path'], command_undescore + '.rb' )
-
-      if File.exist?(file)
-        puts " ༼ つ ◕_◕ ༽つ OOOPS... Command already exists.   "
-      else
-        File.open(file, 'wb') {|f| f.write(content) }
-
-        file_record = File.join(DAEMON_ROOT, DAEMON_CONFIG['register_file'] )
-        content_to_register = "\nFclRailsDaemon::Recorder.add(command: '#{command_undescore}', class_reference: #{command_camel})"
-        File.open(file_record, 'a+') {|f| f << content_to_register }
-
-        puts " ༼ つ ◕_◕ ༽つ OK... Command created and registered!!!   "
-        puts "New command: #{file}    "
-        puts "Commands registered: #{file_record}    "
-      end
+      validate_command_name command
+      FclRailsDaemon::CommandGenerator.destroy(command)
       exit
     end
 
     def self.set_process_name(argv)
-      i = argv.index('--command') + 1
-      command = argv[i]
-      i = argv.index('--process_name') + 1
-      name = argv[i]
-      if Daemon.commands_valid.include? command
-        puts " ༼ つ ◕_◕ ༽つ OOOPS... The command can not be named #{command}    "
-        exit
-      end
-      if Daemon.commands_valid.include? name
-        puts " ༼ つ ◕_◕ ༽つ OOOPS... The process can not be named #{command}    "
-        exit
-      end
+      command = CommandLine.parse_option('--command', argv)
+      name = CommandLine.parse_option('--process_name', argv)
+      validate_command_name command
+      validate_process_name name
       registered = self.get_registered command
       registered.each { |command| command.process_name = name }
     end
@@ -197,5 +141,18 @@ end
       exit
     end
 
+    def self.validate_command_name(command)
+      if Daemon.commands_valid.include? command
+        puts " ༼ つ ◕_◕ ༽つ OOOPS... The command can not be named #{command}    "
+        exit
+      end
+    end
+
+    def self.validate_process_name(process_name)
+      if Daemon.commands_valid.include? process_name
+        puts " ༼ つ ◕_◕ ༽つ OOOPS... The process can not be named #{process_name}    "
+        exit
+      end
+    end
   end
 end
