@@ -7,41 +7,41 @@ module FclRailsDaemon
       @@file_record
     end
 
+    def self.inflect(command)
+      @@command_camel = ActiveSupport::Inflector.camelize(command)
+      @@command_undescore = ActiveSupport::Inflector.underscore(command)
+    end
+
     def self.create(command)
-      command_camel = ActiveSupport::Inflector.camelize(command)
-      command_undescore = ActiveSupport::Inflector.underscore(command)
+      inflect command
       content = get_content(command)
-      file = File.join(DAEMON_ROOT, DAEMON_CONFIG['command_path'], command_undescore + '.rb' )
+      file = File.join(DAEMON_ROOT, DAEMON_CONFIG['command_path'], @@command_undescore + '.rb' )
       if File.exist?(file)
         puts " ༼ つ ◕_◕ ༽つ OOOPS... Command already exists.   "
       else
         File.open(file, 'wb') {|f| f.write(content) }
         register(command)
         puts " ༼ つ ◕_◕ ༽つ OK... Command created and registered!!!   "
-        puts "New command: #{file}    "
-        puts "Commands registered: #{file_record}    "
       end
     end
 
     def self.register(command)
-      command_camel = ActiveSupport::Inflector.camelize(command)
-      command_undescore = ActiveSupport::Inflector.underscore(command)
-      content_to_register = "\nFclRailsDaemon::Recorder.add(command: '#{command_undescore}', class_reference: #{command_camel})"
-      File.open(@@file_record, 'a+') {|f| f << content_to_register }
+      inflect command
+      content = "\nFclRailsDaemon::Recorder.add(command: '#{@@command_undescore}', class_reference: #{@@command_camel})"
+      File.open(@@file_record, 'a+') {|f| f << content }
     end
 
     def self.get_content(command)
-      command_camel = ActiveSupport::Inflector.camelize(command)
-      command_undescore = ActiveSupport::Inflector.underscore(command)
+      inflect command
       content = <<-FILE
-class #{command_camel} < FclRailsDaemon::Daemon
+class #{@@command_camel} < FclRailsDaemon::Daemon
 
   # Is necessary to implement the method "initialize"
   def initialize
     # Set the parameter "command" (name that will be referenced in the command entered in the terminal)
     # The parameter "log" is optional but suggest it is set a log for each command to prevent many commands write on deafult log (if you have many commands in your application)
     # The parameter "process_name" is optional (is the name that will be assigned to the process)
-    super(command: "#{command_undescore}", log: "log/#{command_undescore}.log", process_name: "#{command_undescore}")
+    super(command: "#{@@command_undescore}", log: "log/#{@@command_undescore}.log", process_name: "#{@@command_undescore}")
   end
 
   # Is necessary to implement the method "self.help"
@@ -49,7 +49,7 @@ class #{command_camel} < FclRailsDaemon::Daemon
     # Should return a hash with " description" and "example"
     {
       description: "This command is a sample, write here a valid description - Run every 10 seconds",
-      sample: ["--command #{command_undescore} |start|stop|restart|status|"]
+      sample: ["--command #{@@command_undescore} |start|stop|restart|status|"]
     }
   end
 
@@ -68,9 +68,8 @@ end
     end
 
     def self.destroy(command)
-      command_camel = ActiveSupport::Inflector.camelize(command)
-      command_undescore = ActiveSupport::Inflector.underscore(command)
-      file = File.join(DAEMON_ROOT, DAEMON_CONFIG['command_path'], command_undescore + '.rb' )
+      inflect command
+      file = File.join(DAEMON_ROOT, DAEMON_CONFIG['command_path'], @@command_undescore + '.rb' )
       if File.exist?(file)
         FileUtils.rm_rf(file)
         unregister(command)
@@ -81,11 +80,10 @@ end
     end
 
     def self.unregister(command)
-      command_camel = ActiveSupport::Inflector.camelize(command)
-      command_undescore = ActiveSupport::Inflector.underscore(command)
+      inflect command
       new_lines = ''
       IO.readlines(@@file_record).map do |line|
-        new_lines += line unless line.match(/#{command_undescore}/)
+        new_lines += line unless line.match(/#{@@command_undescore}/)
       end
       File.open(@@file_record, 'w') {|f| f.puts new_lines }
     end

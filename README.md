@@ -27,9 +27,9 @@ After installation you need to create the directories and configuration files fo
 
 Will be created:
 
- * *config/fcld_rails_daemon.rb* (File where the commands are recorded)
- * *tmp/pids/fcld.yml* (Pids file where the commands are recorded)
- * *lib/fcl_rails_daemon/command_sample.rb* (A command template)
+ * **config/fcld_rails_daemon.rb** (File where the commands are recorded)
+ * **tmp/pids/fcld.yml** (Pids file where the commands are recorded)
+ * **lib/fcl_rails_daemon/command_sample.rb** (A command template)
 
 
 ## How to use?
@@ -38,9 +38,15 @@ Will be created:
 
     $ fcld --create my_first_command
 
- * Adds a command in lib/fcl_rails_daemon
- * Records the command in config/fcl_rails_daemon.rb
+ * Add the command file in **lib/fcl_rails_daemon**
+ * Records the command in **config/fcl_rails_daemon.rb**
 
+#### [--destroy] Destroy a command
+
+    $ fcld --destroy my_first_command
+
+ * Remove the command file in **lib/fcl_rails_daemon**
+ * Remove record of the command in **config/fcl_rails_daemon.rb**
 
 #### [--help] Displays the manual for commands and options
 
