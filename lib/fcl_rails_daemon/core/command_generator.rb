@@ -1,25 +1,33 @@
 module FclRailsDaemon
   class CommandGenerator
 
+    @@file_record ||= File.join(DAEMON_ROOT, DAEMON_CONFIG['register_file'] )
+
+    def self.file_record
+      @@file_record
+    end
+
     def self.create(command)
       command_camel = ActiveSupport::Inflector.camelize(command)
       command_undescore = ActiveSupport::Inflector.underscore(command)
       content = get_content(command)
       file = File.join(DAEMON_ROOT, DAEMON_CONFIG['command_path'], command_undescore + '.rb' )
-
       if File.exist?(file)
         puts " ༼ つ ◕_◕ ༽つ OOOPS... Command already exists.   "
       else
         File.open(file, 'wb') {|f| f.write(content) }
-
-        file_record = File.join(DAEMON_ROOT, DAEMON_CONFIG['register_file'] )
-        content_to_register = "\nFclRailsDaemon::Recorder.add(command: '#{command_undescore}', class_reference: #{command_camel})"
-        File.open(file_record, 'a+') {|f| f << content_to_register }
-
+        register(command)
         puts " ༼ つ ◕_◕ ༽つ OK... Command created and registered!!!   "
         puts "New command: #{file}    "
         puts "Commands registered: #{file_record}    "
       end
+    end
+
+    def self.register(command)
+      command_camel = ActiveSupport::Inflector.camelize(command)
+      command_undescore = ActiveSupport::Inflector.underscore(command)
+      content_to_register = "\nFclRailsDaemon::Recorder.add(command: '#{command_undescore}', class_reference: #{command_camel})"
+      File.open(@@file_record, 'a+') {|f| f << content_to_register }
     end
 
     def self.get_content(command)
@@ -57,6 +65,29 @@ class #{command_camel} < FclRailsDaemon::Daemon
 end
       FILE
       content
+    end
+
+    def self.destroy(command)
+      command_camel = ActiveSupport::Inflector.camelize(command)
+      command_undescore = ActiveSupport::Inflector.underscore(command)
+      file = File.join(DAEMON_ROOT, DAEMON_CONFIG['command_path'], command_undescore + '.rb' )
+      if File.exist?(file)
+        FileUtils.rm_rf(file)
+        unregister(command)
+        puts " ༼ つ ◕_◕ ༽つ OK... Command was destroyed!!!   "
+      else
+        puts " ༼ つ ◕_◕ ༽つ OOOPS... Command does not exist.   "
+      end
+    end
+
+    def self.unregister(command)
+      command_camel = ActiveSupport::Inflector.camelize(command)
+      command_undescore = ActiveSupport::Inflector.underscore(command)
+      new_lines = ''
+      IO.readlines(@@file_record).map do |line|
+        new_lines += line unless line.match(/#{command_undescore}/)
+      end
+      File.open(@@file_record, 'w') {|f| f.puts new_lines }
     end
 
   end

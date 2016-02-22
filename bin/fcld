@@ -20,10 +20,12 @@ if ARGV.include?("--env")
   ENV['RAILS_ENV'] = env
 end
 
-# check if exist rails environment file
 env_file = File.join(DAEMON_ROOT, "config", "environment.rb")
-raise " ༼ つ ◕_◕ ༽つ OOOPS... Could not find the Rails environment file.    " unless File.exist? env_file
-require env_file
+if File.exist? env_file
+  require env_file
+else
+  puts " ༼ つ ◕_◕ ༽つ OOOPS... Could not find the Rails environment file.    "
+end
 
 # load gem
 require 'fcl_rails_daemon'
@@ -34,4 +36,3 @@ rescue => e
   puts e.message
   e.backtrace.each {|l| puts l}
 end
-
